@@ -1,0 +1,111 @@
+version: '3.8'
+services:
+ vote:
+     image: nahlathabet/vote:latest
+     container_name: vote-app
+     ports:
+       - "8080:80"
+     networks:
+       - frontend-tier
+       - backend-tier
+     environment:
+       - FLASK_ENV=production
+       - REDIS_HOST=redis
+       - REDIS_PORT=6379
+     depends_on:
+       redis:
+         condition: service_healthy
+     restart: unless-stopped
+ 
+ result:
+     image: nahlathabet/result:latest
+     container_name: result-app
+     init: true
+     ports:
+       - "8081:80"
+     networks:
+       - frontend-tier
+       - backend-tier
+     environment:
+       - NODE_ENV=production
+       - PORT=80
+       - POSTGRES_HOST=db
+       - POSTGRES_PORT=5432
+       - POSTGRES_USER=postgres
+       - POSTGRES_PASSWORD=postgres
+       - POSTGRES_DB=postgres
+   
+     restart: unless-stopped
+ 
+   
+ worker:
+     image: nahlathabet/worker:latest
+     container_name: worker-service
+     networks:
+       - backend-tier
+     environment:
+       - REDIS_HOST=redis
+       - REDIS_PORT=6379
+       - POSTGRES_HOST=db
+       - POSTGRES_PORT=5432
+       - POSTGRES_USER=postgres
+       - POSTGRES_PASSWORD=postgres
+       - POSTGRES_DB=postgres
+ 
+     restart: unless-stopped
+ 
+ 
+ redis:
+     image: redis:7-alpine
+     container_name: redis
+     networks:
+       - backend-tier
+     healthcheck:
+       test: ["CMD", "sh", "/healthchecks/redis.sh"]
+       interval: 10s
+       timeout: 5s
+       retries: 5
+       start_period: 10s
+     volumes:
+       - ./healthchecks:/healthchecks:ro
+     restart: unless-stopped
+ 
+ 
+ db:
+     image: postgres:15-alpine
+     container_name: db
+     networks:
+       - backend-tier
+     environment:
+       - POSTGRES_USER=postgres
+       - POSTGRES_PASSWORD=postgres
+       - POSTGRES_DB=postgres
+     volumes:
+       - db-data:/var/lib/postgresql/data
+       - ./healthchecks:/healthchecks:ro
+       - ./db-init/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+ 
+     healthcheck:
+       test: ["CMD", "sh", "/healthchecks/postgres.sh"]
+       interval: 10s
+       timeout: 5s
+       retries: 5
+       start_period: 10s
+     restart: unless-stopped
+ 
+
+networks:
+
+  frontend-tier:
+    driver: bridge
+    name: voting-app-frontend
+
+ 
+  backend-tier:
+    driver: bridge
+    name: voting-app-backend
+
+volumes:
+  
+  db-data:
+    name: voting-app-db-data
