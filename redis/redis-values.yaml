@@ -348,10 +348,11 @@ master:
   ##
   podSecurityContext:
     enabled: true
+    runAsUser: 999
     fsGroupChangePolicy: Always
     sysctls: []
     supplementalGroups: []
-    fsGroup: 1001
+    fsGroup: 999
   ## Configure Container Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
   ## @param master.containerSecurityContext.enabled Enabled Redis(R) master containers' Security Context
@@ -367,8 +368,8 @@ master:
   containerSecurityContext:
     enabled: true
     seLinuxOptions: {}
-    runAsUser: 1001
-    runAsGroup: 1001
+    runAsUser: 999
+    runAsGroup: 999
     runAsNonRoot: true
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
