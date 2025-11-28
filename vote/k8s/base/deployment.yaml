@@ -32,7 +32,7 @@ spec:
             drop:
             - ALL
         ports:
-        - containerPort: 80
+        - containerPort: 5000
         
         env:
         - name: host

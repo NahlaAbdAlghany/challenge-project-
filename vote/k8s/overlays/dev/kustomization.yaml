@@ -5,7 +5,7 @@ namespace: voting-dev
 
 resources:
 - ../../base
-- namespace.yaml
+#- namespace.yaml
 
 
   

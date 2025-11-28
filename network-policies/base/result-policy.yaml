@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-external-to-result
-  namespace: voting-app
+  namespace: voting-dev
 spec:
   podSelector:
     matchLabels:
@@ -10,7 +10,14 @@ spec:
   policyTypes:
   - Ingress
   ingress:
-  - from: []  # Allow from anywhere
+  - from:  # Rule 1: External traffic
+    - ipBlock:
+        cidr: 0.0.0.0/0
     ports:
     - protocol: TCP
-      port: 8081
+      port: 4000 
+  - from:  # Rule 2: Internal cluster traffic
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 4000
