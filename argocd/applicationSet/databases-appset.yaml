@@ -8,11 +8,11 @@ spec:
         elements:
           - name: postgres
             path: postgresql
-            valuesFile: postgres-value.yaml
+            valuesFile: postgresql/postgres-value.yaml
             namespace: voting-dev
           - name: redis
             path: redis
-            valuesFile: redis-values.yaml
+            valuesFile: redis/redis-values.yaml
             namespace: voting-dev
   template:
     metadata:
@@ -25,7 +25,8 @@ spec:
         path: '{{path}}'
         helm:
           releaseName: '{{name}}'
-          valuesFile: '{{valuesFile}}'
+          valueFiles:
+            - '{{valuesFile}}'
       destination:
         name: in-cluster
         namespace: '{{namespace}}'
@@ -34,4 +35,4 @@ spec:
           prune: true
           selfHeal: true
         syncOptions:
-          - CreateNamespace=true  
+          - CreateNamespace=true
