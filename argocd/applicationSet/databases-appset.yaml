@@ -2,31 +2,45 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   name: databases
+  namespace: argocd
 spec:
   generators:
     - list:
         elements:
           - name: postgres
-            path: postgresql
-            valuesFile: postgresql/postgres-value.yaml
+            chart: postgresql
+            repo: https://charts.bitnami.com/bitnami
+            version: 18.1.11
+            valuesFile: postgres/postgres-values.yaml
             namespace: voting-dev
+
           - name: redis
-            path: redis
+            chart: redis
+            repo: https://charts.bitnami.com/bitnami
+            version: 23.2.12
             valuesFile: redis/redis-values.yaml
             namespace: voting-dev
+
   template:
     metadata:
       name: '{{name}}'
     spec:
       project: default
-      source:
-        repoURL: 'https://github.com/NahlaAbdAlghany/voting-app.git'
-        targetRevision: phase-two
-        path: '{{path}}'
-        helm:
-          releaseName: '{{name}}'
-          valueFiles:
-            - '{{valuesFile}}'
+      sources:
+        # Helm chart source
+        - repoURL: '{{repo}}'
+          chart: '{{chart}}'
+          targetRevision: '{{version}}'
+          helm:
+            releaseName: '{{name}}'
+            valueFiles:
+              - $values/{{valuesFile}}
+        
+        # Git repo source for values files
+        - repoURL: 'https://github.com/NahlaAbdAlghany/voting-app.git'
+          targetRevision: 'phase-two'
+          ref: values
+
       destination:
         name: in-cluster
         namespace: '{{namespace}}'
