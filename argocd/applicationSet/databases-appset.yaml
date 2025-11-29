@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: databases
+spec:
+  generators:
+    - list:
+        elements:
+          - name: postgres
+            path: postgresql
+            valuesFile: postgres-value.yaml
+            namespace: voting-dev
+          - name: redis
+            path: redis
+            valuesFile: redis-values.yaml
+            namespace: voting-dev
+  template:
+    metadata:
+      name: '{{name}}'
+    spec:
+      project: default
+      source:
+        repoURL: 'https://github.com/NahlaAbdAlghany/voting-app.git'
+        targetRevision: phase-two
+        path: '{{path}}'
+        helm:
+          releaseName: '{{name}}'
+          valuesFile: '{{valuesFile}}'
+      destination:
+        name: in-cluster
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true  
