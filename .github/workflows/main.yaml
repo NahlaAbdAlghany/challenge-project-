@@ -237,16 +237,25 @@ jobs:
         run: |
           TAG="${{ needs.detect-changes.outputs.tag }}"
           
-          cd k8s/overlays/production
+          cd vote/k8s/overlays/dev
           
-          echo "Updating images to tag: ${TAG}"
+          echo "Updating vote image to tag: ${TAG}"
           
           # Update image tags in kustomization.yaml
-          kustomize edit set image \
-            vote=${{ env.DOCKERHUB_USERNAME }}/vote:${TAG} \
-            result=${{ env.DOCKERHUB_USERNAME }}/result:${TAG} \
-            worker=${{ env.DOCKERHUB_USERNAME }}/worker:${TAG}
+          kustomize edit set image vote=${{ env.DOCKERHUB_USERNAME }}/vote:${TAG} 
+           
+          cd ../../../../../result/k8s/overlays/dev
           
-          echo "Updated kustomization.yaml:"
-          cat kustomization.yaml
+          echo "Updating result image to tag: ${TAG}"
+          
+          # Update image tags in kustomization.yaml
+          kustomize edit set image result=${{ env.DOCKERHUB_USERNAME }}/result:${TAG}
+
+
+            cd ../../../../../worker/k8s/overlays/dev
+
+            echo "Updating vote image to tag: ${TAG}"
+          
+          # Update image tags in kustomization.yaml
+          kustomize edit set image worker=${{ env.DOCKERHUB_USERNAME }}/worker:${TAG}
   
