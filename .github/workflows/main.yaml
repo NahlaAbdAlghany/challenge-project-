@@ -10,9 +10,11 @@ jobs:
   detect-changes:
     runs-on: ubuntu-24.04
     outputs:
-       vote: ${{ steps.filter.outputs.vote }}
-       result: ${{ steps.filter.outputs.result }}
-       worker: ${{ steps.filter.outputs.worker }}
+       vote: ${{ steps.filters.outputs.vote }}
+       result: ${{ steps.filters.outputs.result }}
+       worker: ${{ steps.filters.outputs.worker }}
+       tag: ${{ steps.generate-tag.outputs.tag }}
+       
     steps:
     - uses: actions/checkout@v4
     - uses: dorny/paths-filter@v2
@@ -230,7 +232,7 @@ jobs:
           sudo mv kustomize /usr/local/bin/
           kustomize version
       
-          
+
       - name: Update Kustomize with new image tags
         run: |
           TAG="${{ needs.detect-changes.outputs.tag }}"
