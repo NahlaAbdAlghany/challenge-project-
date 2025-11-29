@@ -6,5 +6,5 @@ helmCharts:
 - name: postgresql
 - version: 18.1.11
 - repo: https://charts.bitnami.com/bitnami
-- releaseName: postgresql
-- valuesFile: postgresql-value.yaml
+- releaseName: db
+- valuesFile: postgres-value.yaml
