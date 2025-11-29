@@ -3,6 +3,7 @@ kind: Kustomization
 
 helmCharts:
   - name: redis
+    namespace: voting-dev
     version: 23.2.12
     repo: https://charts.bitnami.com/bitnami
     releaseName: redis

@@ -7,40 +7,27 @@ spec:
   generators:
     - list:
         elements:
-          - name: postgres
-            chart: postgresql
-            repo: https://charts.bitnami.com/bitnami
-            version: 18.1.11
-            valuesFile: postgres/postgres-values.yaml
+          - cluster: in-cluster
+            appName: postgres
+            url: https://kubernetes.default.svc
+            path: postgresql/
             namespace: voting-dev
 
-          - name: redis
-            chart: redis
-            repo: https://charts.bitnami.com/bitnami
-            version: 23.2.12
-            valuesFile: redis/redis-values.yaml
+          - cluster: in-cluster
+            appName: redis
+            url: https://kubernetes.default.svc
+            path: redis/
             namespace: voting-dev
 
   template:
     metadata:
-      name: '{{name}}'
+      name: '{{appName}}-db'
     spec:
       project: default
-      sources:
-        # Helm chart source
-        - repoURL: '{{repo}}'
-          chart: '{{chart}}'
-          targetRevision: '{{version}}'
-          helm:
-            releaseName: '{{name}}'
-            valueFiles:
-              - $values/{{valuesFile}}
-        
-        # Git repo source for values files
-        - repoURL: 'https://github.com/NahlaAbdAlghany/voting-app.git'
-          targetRevision: 'phase-two'
-          ref: values
-
+      source:
+        repoURL: 'https://github.com/NahlaAbdAlghany/voting-app.git'
+        targetRevision: 'phase-two'
+        path: '{{path}}'
       destination:
         name: in-cluster
         namespace: '{{namespace}}'
@@ -49,4 +36,5 @@ spec:
           prune: true
           selfHeal: true
         syncOptions:
-          - CreateNamespace=true
+           - CreateNamespace=true
+           - Replace=true
