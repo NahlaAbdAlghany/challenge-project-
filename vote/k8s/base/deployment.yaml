@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vote
+  labels:
+    app: vote
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vote
+      
+  template:
+    metadata:
+      labels:
+        app: vote
+    spec:
+      serviceAccountName: vote
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: vote
+        image: nahlathabet/vote:0.3
+        imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        ports:
+        - containerPort: 5000
+        
+        env:
+        - name: host
+          value: redis
+        - name:  port
+          value: "6379"
+        - name: FLASK_DEBUG
+          value: "0"
+        volumeMounts:
+        - name: vote-storage
+          mountPath: /tmp
+      volumes:
+      - name: vote-storage
+        persistentVolumeClaim:
+          claimName: vote-pvc
+     

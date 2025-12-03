@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- default-deny.yaml
+- db-policy.yaml
+- redis-policy.yaml
+- result-policy.yaml
+- worker-policy.yaml
+- vote-policy.yaml
+- IstioGateway-policy.yaml
+- allow-ingress-to-gateway.yaml
+

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: result
+  labels:
+    app: result
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: result
+      
+  template:
+    metadata:
+      labels:
+        app: result
+    spec:
+      serviceAccountName: result
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: result
+        image: nahlathabet/result:latest
+        imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        ports:
+        - containerPort: 4000
+        
+        env:
+        - name: POSTGRES_HOST
+          value: db
+        - name:  POSTGRES_PORT
+          value: "5432"
+        - name: POSTGRES_DB
+          value: postgres
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db
+              key: postgres-password
+      
+        volumeMounts:
+        - name: result-storage
+          mountPath: /tmp
+      volumes:
+      - name: result-storage
+        persistentVolumeClaim:
+          claimName: result-pvc
+     

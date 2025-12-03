@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-external-to-vote
+  namespace: voting-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: vote
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:  # Rule 1: External traffic
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - protocol: TCP
+      port: 5000 
+  - from:  # Rule 2: Internal cluster traffic
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 5000 

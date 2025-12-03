@@ -1,0 +1,43 @@
+# Worker writes results to PostgreSQL
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-worker-to-db
+  namespace: voting-dev
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: db
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: worker
+    ports:
+    - protocol: TCP
+      port: 5432
+
+---
+# Result service reads from PostgreSQL
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-result-to-db
+  namespace: voting-dev
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: db
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: result
+    ports:
+    - protocol: TCP
+      port: 5432
+      

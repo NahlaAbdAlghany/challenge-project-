@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-gateway
+  namespace: voting-dev
+spec:
+  podSelector:
+    matchExpressions:
+    - key: gateway.networking.k8s.io/gateway-name
+      operator: In
+      values:
+      - voting-gateway
+      - resulting-gateway
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector: {}  # allows all pods in the namespace
+    -  ipBlock:
+        cidr: 0.0.0.0/0  # allows external traffic
+    ports:
+    - protocol: TCP
+      port: 80

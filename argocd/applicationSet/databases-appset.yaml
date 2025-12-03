@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: databases
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - cluster: in-cluster
+            appName: postgres
+            url: https://kubernetes.default.svc
+            path: postgresql/
+            namespace: voting-dev
+
+          - cluster: in-cluster
+            appName: redis
+            url: https://kubernetes.default.svc
+            path: redis/
+            namespace: voting-dev
+
+  template:
+    metadata:
+      name: '{{appName}}-db'
+    spec:
+      project: default
+      source:
+        repoURL: 'https://github.com/NahlaAbdAlghany/voting-app.git'
+        targetRevision: 'phase-two'
+        path: '{{path}}'
+      destination:
+        name: in-cluster
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+           - CreateNamespace=true
+           - Replace=true
